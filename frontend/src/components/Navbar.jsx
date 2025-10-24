@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { logout } from "../utils/auth";
 
 const Navbar = () => {
   const [userInfo, setUserInfo] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const getUserInfo = () => {
@@ -26,15 +27,26 @@ const Navbar = () => {
     const updateUserInfo = () => setUserInfo(getUserInfo());
 
     updateUserInfo();
+    window.addEventListener("tokenChanged", updateUserInfo);
     window.addEventListener("storage", updateUserInfo);
-    return () => window.removeEventListener("storage", updateUserInfo);
+
+    return () => {
+      window.removeEventListener("tokenChanged", updateUserInfo);
+      window.removeEventListener("storage", updateUserInfo);
+    };
   }, []);
 
   const handleLogout = () => {
     logout();
     setUserInfo(null);
+    window.dispatchEvent(new Event("tokenChanged"));
     navigate("/");
   };
+
+  const isActive = (path) =>
+    location.pathname === path
+      ? "text-emerald-600 font-semibold"
+      : "hover:text-emerald-600";
 
   return (
     <header className="flex items-center justify-between md:px-[8vw] px-[3vw] bg-white h-14 text-black shadow-sm fixed top-0 left-0 w-full z-50">
@@ -51,17 +63,17 @@ const Navbar = () => {
       <nav>
         <ul className="flex font-medium items-center gap-4">
           <li>
-            <Link to="/" className="font-semibold text-emerald-600">
+            <Link to="/" className={isActive("/")}>
               Profil
             </Link>
           </li>
           <li>
-            <Link to="/berita" className="hover:text-emerald-600">
+            <Link to="/berita" className={isActive("/berita")}>
               Berita
             </Link>
           </li>
           <li>
-            <Link to="/layanan" className="hover:text-emerald-600">
+            <Link to="/layanan" className={isActive("/layanan")}>
               Layanan
             </Link>
           </li>

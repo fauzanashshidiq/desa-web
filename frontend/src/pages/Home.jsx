@@ -1,6 +1,21 @@
 import React from "react";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
+  iconUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
+  shadowUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+});
 
 const Home = () => {
+  const cibiruPosition = [-6.9346385, 107.7176171];
+
   return (
     <main className="flex w-full min-h-screen items-center justify-center pt-14 md:px-[8vw] px-[3vw]">
       <div className="flex flex-col md:flex-row w-full max-w-6xl items-center justify-center gap-10">
@@ -72,12 +87,24 @@ const Home = () => {
             </div>
           </div>
         </div>
-        <div className="w-full md:w-1/3">
-          <img
-            src="/src/petaCibiru.png"
-            alt="Peta Desa Cibiru"
-            className="w-full h-auto rounded-xl shadow-md object-contain"
-          />
+
+        <div className="w-full md:w-1/3 h-80 rounded-xl overflow-hidden shadow-md">
+          <MapContainer
+            center={cibiruPosition}
+            zoom={15}
+            scrollWheelZoom={false}
+            className="h-full w-full"
+          >
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            <Marker position={cibiruPosition}>
+              <Popup>
+                <b>Desa Cibiru</b> <br /> Kecamatan Cileunyi, Kabupaten Bandung
+              </Popup>
+            </Marker>
+          </MapContainer>
         </div>
       </div>
     </main>
