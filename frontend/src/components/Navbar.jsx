@@ -26,13 +26,19 @@ const Navbar = () => {
     const updateUserInfo = () => setUserInfo(getUserInfo());
 
     updateUserInfo();
+    window.addEventListener("tokenChanged", updateUserInfo);
     window.addEventListener("storage", updateUserInfo);
-    return () => window.removeEventListener("storage", updateUserInfo);
+
+    return () => {
+      window.removeEventListener("tokenChanged", updateUserInfo);
+      window.removeEventListener("storage", updateUserInfo);
+    };
   }, []);
 
   const handleLogout = () => {
     logout();
     setUserInfo(null);
+    window.dispatchEvent(new Event("tokenChanged"));
     navigate("/");
   };
 

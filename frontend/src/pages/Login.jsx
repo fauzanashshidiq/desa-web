@@ -27,6 +27,7 @@ const Login = () => {
     try {
       const data = await loginUser(formData.loginEmail, formData.loginPassword);
       localStorage.setItem("token", data.token);
+      window.dispatchEvent(new Event("tokenChanged"));
       showMessage("success", "Login berhasil! Anda akan dialihkan...");
 
       setTimeout(() => {
