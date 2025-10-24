@@ -1,0 +1,307 @@
+<!-- <!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - WebDesa</title>
+    <link href="/src/style.css" rel="stylesheet">
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+</head>
+<body class="bg-gray-100">
+
+    <header class="flex items-center justify-between md:px-[8vw] px-[3vw] bg-white h-14 text-black shadow-sm fixed top-0 left-0 w-full z-50">
+        <div class="logo">
+            <a class="flex items-center gap-1" href="index.html">
+                <img class="h-7 -mt-1" src="https://img.icons8.com/pastel-glyph/64/40C057/marker--v1.png" alt="marker--v1" />
+                <span class="text-lg font-bold">Desa Cibiru</span>
+            </a>
+        </div>
+        <nav>
+            <ul id="navbar-links" class="flex font-medium items-center gap-4">
+                <li><a href="index.html" class="hover:text-emerald-600">Profil</a></li>
+                <li><a href="berita.html" class="hover:text-emerald-600">Berita</a></li>
+                <li><a href="layanan.html" class="hover:text-emerald-600">Layanan</a></li>
+                <li id="auth-button-container">
+                    <a href="login.html" class="bg-emerald-600 text-sm font-semibold text-white px-4 py-1.5 rounded-md hover:bg-emerald-700">Login</a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Admin Panel</h1>
+
+        <div x-data="adminPanel()" x-init="init()">
+            
+            <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+                <h2 class="text-xl font-semibold mb-4">Upload Berita Baru</h2>
+                <form @submit.prevent="submitBerita" class="space-y-4">
+                    <div>
+                        <label for="judul" class="block text-sm font-medium text-gray-700">Judul Berita</label>
+                        <input type="text" id="judul" x-model="beritaForm.judul" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="gambar" class="block text-sm font-medium text-gray-700">Gambar (Thumbnail)</label>
+                        <input type="file" id="gambar" @change="beritaForm.gambar = $event.target.files[0]" required class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Isi Berita</label>
+                        <div id="editor" class="mt-1 bg-white" style="min-height: 200px;"></div>
+                    </div>
+                    <button type="submit" class="w-full bg-emerald-600 text-white py-2 px-4 rounded-md hover:bg-emerald-700 font-semibold transition">Upload Berita</button>
+                </form>
+            </div>
+            
+            <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+                <h2 class="text-xl font-semibold mb-4">Kelola Berita</h2>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Judul</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <template x-for="item in berita" :key="item._id">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="item.judul"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="new Date(item.tanggal).toLocaleDateString('id-ID')"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-4">
+                                        <a :href="`edit-berita.html?id=${item._id}`" class="text-emerald-600 hover:text-emerald-900">Edit</a>
+                                        <button @click="deleteBerita(item._id)" class="text-red-600 hover:text-red-900">Hapus</button>
+                                    </td>
+                                </tr>
+                            </template>
+                            <template x-if="berita.length === 0">
+                                <tr><td colspan="3" class="px-6 py-4 text-center text-gray-500">Tidak ada berita.</td></tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+                <h2 class="text-xl font-semibold mb-4">Manajemen Peminjaman Sarana</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 text-center">
+                    <div class="p-4 bg-blue-50 rounded-lg">
+                        <h4 class="text-sm font-medium text-blue-600">TOTAL PENGAJUAN</h4>
+                        <p class="text-3xl font-bold text-blue-800" x-text="peminjaman.length"></p>
+                    </div>
+                    <div class="p-4 bg-yellow-50 rounded-lg">
+                        <h4 class="text-sm font-medium text-yellow-600">BARANG DIPINJAM</h4>
+                        <p class="text-3xl font-bold text-yellow-800" x-text="peminjaman.filter(p => p.status === 'Dipinjam').length"></p>
+                    </div>
+                    <div class="p-4 bg-green-50 rounded-lg">
+                        <h4 class="text-sm font-medium text-green-600">SUDAH DIKEMBALIKAN</h4>
+                        <p class="text-3xl font-bold text-green-800" x-text="peminjaman.filter(p => p.status === 'Dikembalikan').length"></p>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pemohon</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Barang</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal Akan Dipinjam</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal Akan DikembaliKan</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <template x-for="item in peminjaman" :key="item._id">
+                                <tr>
+                                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="item.nama"></td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-700" x-text="item.barang"></td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500" x-text="new Date(item.tanggalPinjam).toLocaleDateString('id-ID')"></td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500" x-text="item.tanggalKembali ? new Date(item.tanggalKembali).toLocaleDateString('id-ID') : '-'"></td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-sm">
+                                        <span x-text="item.status" :class="{ 'bg-yellow-100 text-yellow-800': item.status === 'Diajukan', 'bg-blue-100 text-blue-800': item.status === 'Dipinjam', 'bg-green-100 text-green-800': item.status === 'Disetujui' || item.status === 'Dikembalikan', 'bg-red-100 text-red-800': item.status === 'Ditolak' }" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"></span>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium space-x-4">
+                                        <a :href="`edit-peminjaman.html?id=${item._id}`" class="text-emerald-600 hover:text-emerald-900">Edit</a>
+                                        <button @click="deletePeminjaman(item._id)" class="text-red-600 hover:text-red-900">Hapus</button>
+                                    </td>
+                                </tr>
+                            </template>
+                            <template x-if="peminjaman.length === 0">
+                                <tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">Tidak ada data peminjaman.</td></tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+                <h2 class="text-xl font-semibold mb-4">Kelola Aspirasi</h2>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aspirasi</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                                
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <template x-for="item in aspirasi" :key="item._id">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="item.nama"></td>
+                                    <td class="px-6 py-4 text-sm text-gray-500" x-text="item.aspirasi"></td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-sm">
+                                        <span x-text="item.status" :class="{ 'bg-yellow-100 text-yellow-800': item.status === 'Diajukan', 'bg-blue-100 text-blue-800': item.status === 'Dipinjam', 'bg-green-100 text-green-800': item.status === 'Disetujui' || item.status === 'Dikembalikan', 'bg-red-100 text-red-800': item.status === 'Belum Ditanggapi' }" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"></span>
+                                    </td>
+                                    
+
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <button @click="deleteAspirasi(item._id)" class="text-red-600 hover:text-red-900">Hapus</button>
+                                    </td>
+                                </tr>
+                            </template>
+                               <template x-if="aspirasi.length === 0">
+                                <tr><td colspan="3" class="px-6 py-4 text-center text-gray-500">Tidak ada aspirasi.</td></tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { logout } from './src/auth.js';
+        function getUserInfo() {
+            const token = localStorage.getItem('token');
+            if (!token) return null;
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                if (payload.exp * 1000 < Date.now()) {
+                    localStorage.removeItem('token'); return null;
+                }
+                return payload;
+            } catch (e) { return null; }
+        }
+        function checkAdminAccess() {
+            const userInfo = getUserInfo();
+            if (!userInfo || userInfo.user.role !== 'admin') {
+                alert('Akses Ditolak!');
+                window.location.href = '/index.html';
+            }
+        }
+        function setupNavbar() {
+            const authContainer = document.getElementById('auth-button-container');
+            const navbarLinks = document.getElementById('navbar-links');
+            const userInfo = getUserInfo();
+            if (!authContainer || !navbarLinks) return;
+            if (userInfo) {
+                authContainer.innerHTML = `<button id="logout-button" class="bg-gray-200 text-sm font-semibold px-4 py-1.5 rounded-md hover:bg-red-500 hover:text-white transition">Logout</button>`;
+                document.getElementById('logout-button').addEventListener('click', logout);
+                if (userInfo.user && userInfo.user.role === 'admin') {
+                    const adminMenuItem = document.createElement('li');
+                    adminMenuItem.innerHTML = `<a href="admin.html" class="font-semibold text-red-600 hover:text-red-700">Admin Panel</a>`;
+                    navbarLinks.insertBefore(adminMenuItem, authContainer);
+                }
+            }
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAdminAccess();
+            setupNavbar();
+        });
+    </script>
+    
+    <script>
+        function adminPanel() {
+            const API_URL = 'http://localhost:5000';
+            const token = localStorage.getItem('token');
+            const getAuthHeaders = () => ({ 'Authorization': `Bearer ${token}` });
+
+            return {
+                berita: [],
+                peminjaman: [],
+                aspirasi: [],
+                quill: null,
+                beritaForm: { judul: '', gambar: null },
+
+                init() {
+                    this.quill = new Quill('#editor', { theme: 'snow', placeholder: 'Tulis isi berita...' });
+                    this.fetchBerita();
+                    this.fetchPeminjaman();
+                    this.fetchAspirasi();
+                },
+                
+                async fetchBerita() {
+                    try {
+                        const response = await fetch(`${API_URL}/api/berita`);
+                        this.berita = await response.json();
+                    } catch (e) { console.error('Gagal fetch berita:', e); alert('Gagal memuat data berita.'); }
+                },
+                async submitBerita() {
+                    const isiHTML = this.quill.root.innerHTML;
+                    if (!this.beritaForm.judul || !isiHTML.trim() || !this.beritaForm.gambar) {
+                        return alert("Harap lengkapi judul, isi, dan gambar berita.");
+                    }
+                    const formData = new FormData();
+                    formData.append('judul', this.beritaForm.judul);
+                    formData.append('isi', isiHTML);
+                    formData.append('gambar', this.beritaForm.gambar);
+                    try {
+                        const res = await fetch(`${API_URL}/api/berita/cloud`, { method: 'POST', headers: getAuthHeaders(), body: formData });
+                        if (!res.ok) throw new Error((await res.json()).msg || 'Gagal upload');
+                        alert('Berita berhasil diupload!');
+                        window.location.reload();
+                    } catch (error) { alert(error.message); }
+                },
+                async deleteBerita(id) {
+                    if (!confirm('Yakin ingin menghapus berita ini?')) return;
+                    try {
+                        const res = await fetch(`${API_URL}/api/berita/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
+                        if (!res.ok) throw new Error((await res.json()).msg || 'Gagal menghapus');
+                        alert('Berita berhasil dihapus.');
+                        this.fetchBerita();
+                    } catch (error) { alert(error.message); }
+                },
+
+                async fetchPeminjaman() {
+                    try {
+                        const response = await fetch(`${API_URL}/api/peminjaman`, { headers: getAuthHeaders() });
+                        this.peminjaman = await response.json();
+                    } catch (e) { console.error('Gagal fetch peminjaman:', e); alert('Gagal memuat data peminjaman.'); }
+                },
+                async deletePeminjaman(id) {
+                    if (!confirm('Yakin ingin menghapus data peminjaman ini?')) return;
+                    try {
+                        const res = await fetch(`${API_URL}/api/peminjaman/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
+                        if (!res.ok) throw new Error((await res.json()).msg || 'Gagal menghapus');
+                        alert('Data peminjaman berhasil dihapus.');
+                        this.fetchPeminjaman();
+                    } catch (error) { alert(error.message); }
+                },
+
+                async fetchAspirasi() {
+                    try {
+                        const response = await fetch(`${API_URL}/api/aspirasi`, { headers: getAuthHeaders() });
+                        this.aspirasi = await response.json();
+                    } catch (e) { console.error('Gagal fetch aspirasi:', e); alert('Gagal memuat data aspirasi.'); }
+                },
+                async deleteAspirasi(id) {
+                    if (!confirm('Yakin ingin menghapus aspirasi ini?')) return;
+                    try {
+                        const res = await fetch(`${API_URL}/api/aspirasi/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
+                        if (!res.ok) throw new Error((await res.json()).msg || 'Gagal menghapus');
+                        alert('Aspirasi berhasil dihapus.');
+                        this.fetchAspirasi();
+                    } catch (error) { alert(error.message); }
+                }
+            }
+        }
+    </script>
+</body>
+</html> -->
