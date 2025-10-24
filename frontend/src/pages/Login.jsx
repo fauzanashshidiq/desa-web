@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { login } from "../utils/auth";
+import { loginUser } from "../api/auth";
+import { registerUser } from "../api/users";
 
 const Login = () => {
   const [mode, setMode] = useState("login");
@@ -24,15 +25,15 @@ const Login = () => {
     showMessage("processing", "Mencoba masuk...");
 
     try {
-      const data = await login(formData.loginEmail, formData.loginPassword);
-      showMessage("success", "Login berhasil! Anda akan dialihkan...");
+      const data = await loginUser(formData.loginEmail, formData.loginPassword);
       localStorage.setItem("token", data.token);
+      showMessage("success", "Login berhasil! Anda akan dialihkan...");
 
       setTimeout(() => {
         navigate(data.user && data.user.role === "admin" ? "/admin" : "/");
       }, 1500);
     } catch (error) {
-      showMessage("error", error.message);
+      showMessage("error", error.message || "Login gagal.");
     }
   };
 
@@ -40,47 +41,20 @@ const Login = () => {
     e.preventDefault();
     showMessage("processing", "Mendaftarkan akun...");
 
-    if (!formData.registerEmail || !formData.registerPassword) {
-      showMessage("error", "Email dan password wajib diisi.");
-      return;
-    }
-
     try {
-      const response = await fetch("http://localhost:5000/api/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: formData.registerEmail,
-          password: formData.registerPassword,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.errors ? data.errors[0].msg : "Registrasi gagal.");
-      }
-
-      showMessage("success", "Registrasi berhasil! Silakan masuk.");
+      await registerUser(formData.registerEmail, formData.registerPassword);
+      showMessage("success", "Registrasi berhasil! Silakan login.");
       setTimeout(() => {
         setMode("login");
         setMessage("");
-        setFormData((prev) => ({
-          ...prev,
-          registerEmail: "",
-          registerPassword: "",
-        }));
-      }, 2000);
+      }, 1500);
     } catch (error) {
-      showMessage("error", error.message);
+      showMessage("error", error.message || "Registrasi gagal.");
     }
   };
 
   const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   return (
