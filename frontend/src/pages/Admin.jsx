@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { getBerita, addBerita, deleteBerita } from "../api/berita";
 import { getPeminjaman, deletePeminjaman } from "../api/peminjaman";
+import { getAspirasi, deleteAspirasi } from "../api/aspirasi";
 import { logout } from "../utils/auth";
 import Quill from "quill";
 import "quill/dist/quill.snow.css";
@@ -14,6 +15,7 @@ const Admin = () => {
   const quillRef = useRef(null);
   const editorRef = useRef(null);
   const [peminjaman, setPeminjaman] = useState([]);
+  const [aspirasi, setAspirasi] = useState([]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -96,6 +98,7 @@ const Admin = () => {
 
   useEffect(() => {
     fetchPeminjaman();
+    fetchAspirasi();
   }, []);
 
   const fetchPeminjaman = async () => {
@@ -107,6 +110,17 @@ const Admin = () => {
     if (!window.confirm("Yakin ingin menghapus data peminjaman?")) return;
     await deletePeminjaman(id);
     fetchPeminjaman();
+  };
+
+  const fetchAspirasi = async () => {
+    const data = await getAspirasi();
+    setAspirasi(data);
+  };
+
+  const handleDeleteAspirasi = async (id) => {
+    if (!window.confirm("Yakin ingin menghapus aspirasi ini?")) return;
+    await deleteAspirasi(id);
+    fetchAspirasi();
   };
 
   return (
@@ -269,6 +283,61 @@ const Admin = () => {
                 <tr>
                   <td className="px-4 py-4 text-center" colSpan="6">
                     Tidak ada data peminjaman.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="bg-white p-6 rounded-lg shadow">
+        <h2 className="text-xl font-bold mb-4">Kelola Aspirasi</h2>
+
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Nama
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Aspirasi
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Status
+                </th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                  Aksi
+                </th>
+              </tr>
+            </thead>
+
+            <tbody className="divide-y divide-gray-200">
+              {aspirasi.length > 0 ? (
+                aspirasi.map((item) => (
+                  <tr key={item._id}>
+                    <td className="px-4 py-3">{item.nama}</td>
+                    <td className="px-4 py-3">{item.aspirasi}</td>
+                    <td className="px-4 py-3">
+                      <span className="px-2 py-1 text-xs rounded bg-gray-100">
+                        {item.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <button
+                        onClick={() => handleDeleteAspirasi(item._id)}
+                        className="text-red-500 hover:underline"
+                      >
+                        Hapus
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td className="px-4 py-4 text-center" colSpan="4">
+                    Tidak ada aspirasi.
                   </td>
                 </tr>
               )}
