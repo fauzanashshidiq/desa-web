@@ -8,6 +8,12 @@ export const getBerita = async () => {
   return res.json();
 };
 
+export const getBeritaById = async (id) => {
+  const res = await fetch(`${API_URL}/api/berita/${id}`);
+  if (!res.ok) throw new Error("Gagal mengambil detail berita");
+  return res.json();
+};
+
 export const addBerita = async (data) => {
   const token = localStorage.getItem("token");
 
@@ -15,15 +21,32 @@ export const addBerita = async (data) => {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
-      // ❌ jangan tulis 'Content-Type' biar FormData bisa dikirim
     },
     body: data,
   });
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    console.error("Upload error:", err);
     throw new Error(err.msg || "Gagal upload berita");
+  }
+
+  return res.json();
+};
+
+export const updateBerita = async (id, data) => {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch(`${API_URL}/api/berita/${id}`, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: data,
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.msg || "Gagal update berita");
   }
 
   return res.json();
