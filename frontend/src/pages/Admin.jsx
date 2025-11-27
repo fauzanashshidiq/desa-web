@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { getBerita, addBerita, deleteBerita } from "../api/berita";
+import { getPeminjaman, deletePeminjaman } from "../api/peminjaman";
 import { logout } from "../utils/auth";
 import Quill from "quill";
 import "quill/dist/quill.snow.css";
@@ -12,6 +13,7 @@ const Admin = () => {
   const [gambar, setGambar] = useState(null);
   const quillRef = useRef(null);
   const editorRef = useRef(null);
+  const [peminjaman, setPeminjaman] = useState([]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -90,6 +92,21 @@ const Admin = () => {
     } catch {
       alert("Gagal menghapus berita");
     }
+  };
+
+  useEffect(() => {
+    fetchPeminjaman();
+  }, []);
+
+  const fetchPeminjaman = async () => {
+    const data = await getPeminjaman();
+    setPeminjaman(data);
+  };
+
+  const handleDeletePeminjaman = async (id) => {
+    if (!window.confirm("Yakin ingin menghapus data peminjaman?")) return;
+    await deletePeminjaman(id);
+    fetchPeminjaman();
   };
 
   return (
@@ -181,6 +198,77 @@ const Admin = () => {
                     className="px-6 py-4 text-center text-gray-500"
                   >
                     Tidak ada berita.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="bg-white p-6 mt-7 rounded-lg shadow mb-10">
+        <h2 className="text-xl font-bold mb-4">Manajemen Peminjaman Sarana</h2>
+
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Pemohon
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Barang
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Tanggal Pinjam
+                </th>
+                <th className="px-4 py-3 text-left text-xs fondedium text-gray-500 uppercase">
+                  Tanggal Kembali
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Status
+                </th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                  Aksi
+                </th>
+              </tr>
+            </thead>
+
+            <tbody className="divide-y divide-gray-200">
+              {peminjaman.length > 0 ? (
+                peminjaman.map((item) => (
+                  <tr key={item._id}>
+                    <td className="px-4 py-3">{item.nama}</td>
+                    <td className="px-4 py-3">{item.barang}</td>
+                    <td className="px-4 py-3">
+                      {new Date(item.tanggalPinjam).toLocaleDateString("id-ID")}
+                    </td>
+                    <td className="px-4 py-3">
+                      {item.tanggalKembali
+                        ? new Date(item.tanggalKembali).toLocaleDateString(
+                            "id-ID"
+                          )
+                        : "-"}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="px-2 py-1 text-xs rounded bg-gray-100">
+                        {item.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <button
+                        onClick={() => handleDeletePeminjaman(item._id)}
+                        className="text-red-500 hover:underline"
+                      >
+                        Hapus
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td className="px-4 py-4 text-center" colSpan="6">
+                    Tidak ada data peminjaman.
                   </td>
                 </tr>
               )}
