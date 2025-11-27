@@ -6,6 +6,7 @@ import { getAspirasi, deleteAspirasi } from "../api/aspirasi";
 import { logout } from "../utils/auth";
 import Quill from "quill";
 import "quill/dist/quill.snow.css";
+import { Link } from "react-router-dom";
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -196,6 +197,13 @@ const Admin = () => {
                       {new Date(item.tanggal).toLocaleDateString("id-ID")}
                     </td>
                     <td className="px-6 py-4 text-right">
+                      <Link
+                        to={`/edit-berita/${item._id}`}
+                        className="text-emerald-600 hover:text-emerald-900 mr-2"
+                      >
+                        Edit
+                      </Link>
+
                       <button
                         onClick={() => handleDelete(item._id)}
                         className="text-red-600 hover:text-red-800"
