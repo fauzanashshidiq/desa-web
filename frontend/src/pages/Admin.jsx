@@ -223,6 +223,35 @@ const Admin = () => {
       <div className="bg-white p-6 mt-7 rounded-lg shadow mb-10">
         <h2 className="text-xl font-bold mb-4">Manajemen Peminjaman Sarana</h2>
 
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 text-center">
+          <div className="p-4 bg-blue-50 rounded-lg">
+            <h4 className="text-sm font-medium text-blue-600">
+              TOTAL PENGAJUAN
+            </h4>
+            <p className="text-3xl font-bold text-blue-800">
+              {peminjaman.length}
+            </p>
+          </div>
+
+          <div className="p-4 bg-yellow-50 rounded-lg">
+            <h4 className="text-sm font-medium text-yellow-600">
+              BARANG DIPINJAM
+            </h4>
+            <p className="text-3xl font-bold text-yellow-800">
+              {peminjaman.filter((p) => p.status === "Dipinjam").length}
+            </p>
+          </div>
+
+          <div className="p-4 bg-green-50 rounded-lg">
+            <h4 className="text-sm font-medium text-green-600">
+              SUDAH DIKEMBALIKAN
+            </h4>
+            <p className="text-3xl font-bold text-green-800">
+              {peminjaman.filter((p) => p.status === "Dikembalikan").length}
+            </p>
+          </div>
+        </div>
+
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -265,7 +294,19 @@ const Admin = () => {
                         : "-"}
                     </td>
                     <td className="px-4 py-3">
-                      <span className="px-2 py-1 text-xs rounded bg-gray-100">
+                      <span
+                        className={`px-2 py-1 text-xs rounded 
+                          ${
+                            item.status === "Diajukan"
+                              ? "bg-blue-100 text-blue-800"
+                              : item.status === "Dikembalikan"
+                              ? "bg-green-100 text-green-800"
+                              : item.status === "Dipinjam"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-red-100 text-red-800"
+                          }
+                        `}
+                      >
                         {item.status}
                       </span>
                     </td>
