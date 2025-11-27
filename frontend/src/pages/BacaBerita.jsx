@@ -54,7 +54,7 @@ const BacaBerita = () => {
   }
 
   return (
-    <main className="pt-20 px-4 md:px-[8vw] flex-1">
+    <main className="pt-20 px-4 md:px-[8vw] flex-1 mb-10">
       {berita && (
         <article className="max-w-4xl mx-auto bg-white p-6 sm:p-8 shadow rounded-lg">
           <div className="mb-6">
@@ -87,7 +87,7 @@ const BacaBerita = () => {
           <img
             src={berita.gambar}
             alt={berita.judul}
-            className="rounded-lg mb-6 w-full h-auto max-h-[500px] object-cover"
+            className="rounded-lg mb-6 w-full max-w-[350px] mx-auto h-auto object-contain"
           />
           <div
             className="prose max-w-none text-gray-800 leading-relaxed ql-editor"

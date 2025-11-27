@@ -10,6 +10,7 @@ import BacaBerita from "./pages/BacaBerita";
 import EditBerita from "./pages/EditBerita";
 import EditPeminjaman from "./pages/EditPeminjaman";
 import Artikel from "./pages/Artikel";
+import Footer from "./components/Footer";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
             <Route path="/artikel" element={<Artikel />} />
           </Routes>
         </main>
+        <Footer />
       </div>
     </Router>
   );
