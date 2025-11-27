@@ -306,11 +306,11 @@ const Admin = () => {
                         className={`px-2 py-1 text-xs rounded 
                           ${
                             item.status === "Diajukan"
-                              ? "bg-blue-100 text-blue-800"
+                              ? "bg-yellow-100 text-yellow-800"
                               : item.status === "Dikembalikan"
                               ? "bg-green-100 text-green-800"
                               : item.status === "Dipinjam"
-                              ? "bg-yellow-100 text-yellow-800"
+                              ? "bg-blue-100 text-blue-800"
                               : "bg-red-100 text-red-800"
                           }
                         `}
@@ -319,6 +319,12 @@ const Admin = () => {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right">
+                      <Link
+                        to={`/edit-peminjaman/${item._id}`}
+                        className="text-emerald-600 hover:text-emerald-900 mr-2"
+                      >
+                        Edit
+                      </Link>
                       <button
                         onClick={() => handleDeletePeminjaman(item._id)}
                         className="text-red-500 hover:underline"
